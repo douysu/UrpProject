@@ -15,6 +15,16 @@ public class CameraRenderer
     CullingResults cullingResults;
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
 
+    static ShaderTagId[] legacyShaderTagIds =
+    {
+        new ShaderTagId("Always"),
+        new ShaderTagId("ForwardBase"),
+        new ShaderTagId("PrepassBase"),
+        new ShaderTagId("Vertex"),
+        new ShaderTagId("VertexLMRGBM"),
+        new ShaderTagId("VertexLM")
+    };
+
     public void Render(ScriptableRenderContext context, Camera camera)
     {
         this.context = context;
@@ -27,7 +37,25 @@ public class CameraRenderer
 
         Setup();
         DrawVisibleGeometry();
+        DrawUnsupportedShaders();
         Submit();
+    }
+
+    void DrawUnsupportedShaders()
+    {
+        var drawSettings = new DrawingSettings(
+            legacyShaderTagIds[0], new SortingSettings(camera)
+        );
+
+        for (int i = 1; i < legacyShaderTagIds.Length; i++)
+        {
+            drawSettings.SetShaderPassName(i, legacyShaderTagIds[i]);
+        }
+
+        var filterSettings = FilteringSettings.defaultValue;
+        context.DrawRenderers(
+            cullingResults, ref drawSettings, ref filterSettings
+        );
     }
 
     void DrawVisibleGeometry()
