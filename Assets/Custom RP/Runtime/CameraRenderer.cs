@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
-public class CameraRenderer
+public partial class CameraRenderer
 {
     ScriptableRenderContext context;
     Camera camera;
@@ -14,18 +14,6 @@ public class CameraRenderer
 
     CullingResults cullingResults;
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
-
-    static Material errorMaterial;
-
-    static ShaderTagId[] legacyShaderTagIds =
-    {
-        new ShaderTagId("Always"),
-        new ShaderTagId("ForwardBase"),
-        new ShaderTagId("PrepassBase"),
-        new ShaderTagId("Vertex"),
-        new ShaderTagId("VertexLMRGBM"),
-        new ShaderTagId("VertexLM")
-    };
 
     public void Render(ScriptableRenderContext context, Camera camera)
     {
@@ -41,30 +29,6 @@ public class CameraRenderer
         DrawVisibleGeometry();
         DrawUnsupportedShaders();
         Submit();
-    }
-
-    void DrawUnsupportedShaders()
-    {
-        if (errorMaterial == null)
-        {
-            errorMaterial = new Material(Shader.Find("Hidden/InternalErrorShader"));
-        }
-
-        var drawSettings = new DrawingSettings(
-            legacyShaderTagIds[0], new SortingSettings(camera)
-        );
-
-        drawSettings.overrideMaterial = errorMaterial;
-
-        for (int i = 1; i < legacyShaderTagIds.Length; i++)
-        {
-            drawSettings.SetShaderPassName(i, legacyShaderTagIds[i]);
-        }
-
-        var filterSettings = FilteringSettings.defaultValue;
-        context.DrawRenderers(
-            cullingResults, ref drawSettings, ref filterSettings
-        );
     }
 
     void DrawVisibleGeometry()
