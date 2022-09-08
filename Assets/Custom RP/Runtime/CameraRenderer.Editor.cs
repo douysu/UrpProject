@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 partial class CameraRenderer
 {
+	partial void DrawGizmos();
 	partial void DrawUnsupportedShaders();
 
 #if UNITY_EDITOR
@@ -17,7 +19,16 @@ partial class CameraRenderer
 
     static Material errorMaterial;
 
-	partial void DrawUnsupportedShaders()
+    partial void DrawGizmos()
+    {
+		if (Handles.ShouldRenderGizmos())
+        {
+			context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+			context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+        }
+    }
+
+    partial void DrawUnsupportedShaders()
 	{
 		if (errorMaterial == null)
 		{
